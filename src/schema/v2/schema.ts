@@ -40,7 +40,7 @@ import OrderedSet from "./ordered_set"
 import OrderedSets from "./ordered_sets"
 // import Profile from "./profile"
 // import Partner from "./partner"
-// import Partners from "./partners"
+import { PartnersConnection } from "./partners"
 // import FilterPartners from "./filter_partners"
 import { filterArtworksConnection } from "./filterArtworksConnection"
 // import PartnerCategory from "./partner_category"
@@ -92,6 +92,7 @@ import SaleArtwork from "./sale_artwork"
 import { SaleArtworksConnectionField } from "./sale_artworks"
 import Artworks from "./artworks"
 import { TargetSupply } from "./TargetSupply"
+import { Shows } from "./shows"
 
 const PrincipalFieldDirective = new GraphQLDirective({
   name: "principalField",
@@ -134,7 +135,7 @@ const rootFields = {
   partner: Partner,
   // partnerCategories: PartnerCategories,
   // partnerCategory: PartnerCategory,
-  // partners: Partners,
+  partnersConnection: PartnersConnection,
   // profile: Profile,
   sale: Sale,
   saleArtwork: SaleArtwork,
@@ -142,6 +143,7 @@ const rootFields = {
   salesConnection: SalesConnectionField,
   searchConnection: Search,
   show: Show,
+  showsConnection: Shows,
   staticContent: StaticContent,
   // status: Status,
   system: System,
