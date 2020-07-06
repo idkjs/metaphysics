@@ -34,8 +34,7 @@ import { CreditCard } from "./credit_card"
 // import ExternalPartner from "./external_partner"
 // import Fairs from "./fairs"
 import Genes from "./genes"
-// import GeneFamilies from "./gene_families"
-// import GeneFamily from "./gene_family"
+import GeneFamilies from "./gene_families"
 import OrderedSet from "./ordered_set"
 import OrderedSets from "./ordered_sets"
 // import Profile from "./profile"
@@ -93,6 +92,7 @@ import { SaleArtworksConnectionField } from "./sale_artworks"
 import Artworks from "./artworks"
 import { TargetSupply } from "./TargetSupply"
 import { Shows } from "./shows"
+import PartnerArtworks from "./partnerArtworks"
 
 const PrincipalFieldDirective = new GraphQLDirective({
   name: "principalField",
@@ -122,8 +122,7 @@ const rootFields = {
   gene: Gene,
   genes: Genes,
   // suggestedGenes: SuggestedGenes,
-  // geneFamilies: GeneFamilies,
-  // geneFamily: GeneFamily,
+  geneFamiliesConnection: GeneFamilies,
   highlights: HighlightsField,
   homePage: HomePage,
   // matchArtist: MatchArtist,
@@ -133,6 +132,7 @@ const rootFields = {
   orderedSet: OrderedSet,
   orderedSets: OrderedSets,
   partner: Partner,
+  partnerArtworks: PartnerArtworks,
   // partnerCategories: PartnerCategories,
   // partnerCategory: PartnerCategory,
   partnersConnection: PartnersConnection,
