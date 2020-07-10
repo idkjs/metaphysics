@@ -47,10 +47,9 @@ import { filterArtworksConnection } from "./filterArtworksConnection"
 // import SuggestedGenes from "./suggested_genes"
 import { TagField } from "./tag"
 // import TrendingArtists from "./artists/trending"
-// import Users from "./users"
+import { Users } from "./users"
 import { UserField } from "./user"
 // import MatchGene from "./match/gene"
-// import CausalityJWT from "./causality_jwt"
 // import SaleArtwork from "./sale_artwork"
 // import MatchArtist from "./match/artist"
 // import { SaleArtworksConnectionField } from "./sale_artworks"
@@ -109,7 +108,6 @@ const rootFields = {
   artworks: Artworks,
   artist: Artist,
   artists: Artists,
-  // causalityJWT: CausalityJWT, // TODO: Perhaps this should go into `system` ?
   city: City,
   // collection: Collection,
   creditCard: CreditCard,
@@ -152,7 +150,7 @@ const rootFields = {
   targetSupply: TargetSupply,
   // trendingArtists: TrendingArtists,
   user: UserField,
-  // users: Users,
+  usersConnection: Users,
   // popularArtists: PopularArtists,
 }
 
