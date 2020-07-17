@@ -10,6 +10,7 @@ import {
 import moment from "moment"
 import { defineCustomLocale } from "lib/helpers"
 import { pageableFilterArtworksArgs } from "schema/v2/filterArtworksConnection"
+import { normalizeImageData, getDefault } from "schema/v2/image"
 
 const LocaleEnViewingRoomRelativeShort = "en-viewing-room-relative-short"
 defineCustomLocale(LocaleEnViewingRoomRelativeShort, {
@@ -102,6 +103,7 @@ export const gravityStitchingEnvironment = (
 
       extend type ArtistSeries {
         artists(page: Int, size: Int): [Artist]
+        image: Image
         ${
           schemaVersion === 2
             ? `filterArtworksConnection(${argsToSDL(
@@ -113,6 +115,10 @@ export const gravityStitchingEnvironment = (
 
       extend type Partner {
         viewingRoomsConnection(published: Boolean = true): ViewingRoomConnection
+      }
+
+      extend type Artist {
+        artistSeriesConnection: ArtistSeriesConnection
       }
     `,
     resolvers: {
@@ -131,6 +137,48 @@ export const gravityStitchingEnvironment = (
         },
       },
       ArtistSeries: {
+        image: {
+          fragment: gql`
+          ... on ArtistSeries {
+            image_url: imageURL
+            original_height: imageHeight
+            original_width: imageWidth
+            representativeArtworkID
+          }
+          `,
+          resolve: async (
+            {
+              representativeArtworkID,
+              image_url,
+              original_height,
+              original_width,
+            },
+            args,
+            context,
+            info
+          ) => {
+            if (image_url) {
+              context.imageData = {
+                image_url,
+                original_width,
+                original_height,
+              }
+            } else if (representativeArtworkID) {
+              const { artworkLoader } = context
+              const { images } = await artworkLoader(representativeArtworkID)
+              context.imageData = normalizeImageData(getDefault(images))
+            }
+
+            return info.mergeInfo.delegateToSchema({
+              args,
+              schema: localSchema,
+              operation: "query",
+              fieldName: "_do_not_use_image",
+              context,
+              info,
+            })
+          },
+        },
         artists: {
           fragment: gql`
           ... on ArtistSeries {
@@ -353,6 +401,28 @@ export const gravityStitchingEnvironment = (
               fieldName: "viewingRooms",
               args: {
                 partnerID,
+                ...args,
+              },
+              context,
+              info,
+            })
+          },
+        },
+      },
+      Artist: {
+        artistSeriesConnection: {
+          fragment: gql`
+            ... on Artist {
+              internalID
+            }
+          `,
+          resolve: ({ internalID: artistID }, args, context, info) => {
+            return info.mergeInfo.delegateToSchema({
+              schema: gravitySchema,
+              operation: "query",
+              fieldName: "artistSeriesConnection",
+              args: {
+                artistID,
                 ...args,
               },
               context,
