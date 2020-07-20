@@ -1,5 +1,10 @@
 import { artworkConnection } from "./artwork"
-import { GraphQLList, GraphQLString, GraphQLFieldConfig } from "graphql"
+import {
+  GraphQLList,
+  GraphQLString,
+  GraphQLFieldConfig,
+  GraphQLBoolean,
+} from "graphql"
 import { ResolverContext } from "types/graphql"
 import { pageable } from "relay-cursor-paging"
 import { connectionFromArray } from "graphql-relay"
@@ -15,11 +20,15 @@ const Artworks: GraphQLFieldConfig<void, ResolverContext> = {
     ids: {
       type: new GraphQLList(GraphQLString),
     },
+    respectParamsOrder: {
+      type: GraphQLBoolean,
+      defaultValue: false,
+    },
   }),
   resolve: (_root, options, { artworksLoader }) => {
-    const { ids } = options
+    const { ids, respectParamsOrder } = options
     const { page, size } = convertConnectionArgsToGravityArgs(options)
-    return artworksLoader({ ids }).then((body) => {
+    return artworksLoader({ ids, batched: respectParamsOrder }).then((body) => {
       const totalCount = body.length
       return {
         totalCount,
