@@ -104,6 +104,7 @@ export const gravityStitchingEnvironment = (
       extend type ArtistSeries {
         artists(page: Int, size: Int): [Artist]
         image: Image
+        artworksConnection(first: Int, after: String): ArtworkConnection
         ${
           schemaVersion === 2
             ? `filterArtworksConnection(${argsToSDL(
@@ -118,6 +119,15 @@ export const gravityStitchingEnvironment = (
       }
 
       extend type Artist {
+        artistSeriesConnection(
+          first: Int
+          last: Int
+          after: String
+          before: String
+          ): ArtistSeriesConnection
+      }
+
+      extend type Artwork {
         artistSeriesConnection(
           first: Int
           last: Int
@@ -146,6 +156,26 @@ export const gravityStitchingEnvironment = (
         },
       },
       ArtistSeries: {
+        artworksConnection: {
+          fragment: gql`
+          ... on ArtistSeries {
+            artworkIDs
+          }
+          `,
+          resolve: async ({ artworkIDs: ids }, _args, context, info) => {
+            return await info.mergeInfo.delegateToSchema({
+              args: {
+                ids,
+                ..._args,
+              },
+              schema: localSchema,
+              operation: "query",
+              fieldName: "artworks",
+              context,
+              info,
+            })
+          },
+        },
         image: {
           fragment: gql`
           ... on ArtistSeries {
@@ -451,6 +481,28 @@ export const gravityStitchingEnvironment = (
               fieldName: "artistSeriesConnection",
               args: {
                 artistID,
+                ...args,
+              },
+              context,
+              info,
+            })
+          },
+        },
+      },
+      Artwork: {
+        artistSeriesConnection: {
+          fragment: gql`
+            ... on Artwork {
+              internalID
+            }
+            `,
+          resolve: ({ internalID: artworkID }, args, context, info) => {
+            return info.mergeInfo.delegateToSchema({
+              schema: gravitySchema,
+              operation: "query",
+              fieldName: "artistSeriesConnection",
+              args: {
+                artworkID,
                 ...args,
               },
               context,

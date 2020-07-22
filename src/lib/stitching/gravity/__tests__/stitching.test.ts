@@ -117,6 +117,29 @@ describe("gravity/stitching", () => {
         info: expect.anything(),
       })
     })
+
+    it("resolves the artworksConnection field on ArtistSeries for the V2 schema", async () => {
+      const schemaVersion = 2
+      const { resolvers } = await getGravityStitchedSchema(schemaVersion)
+      const { artworksConnection } = resolvers.ArtistSeries
+      const info = { mergeInfo: { delegateToSchema: jest.fn() } }
+
+      artworksConnection.resolve(
+        { artworkIDs: ["abc123"] },
+        { first: 2 },
+        {},
+        info
+      )
+
+      expect(info.mergeInfo.delegateToSchema).toHaveBeenCalledWith({
+        args: { ids: ["abc123"], first: 2 },
+        operation: "query",
+        fieldName: "artworks",
+        schema: expect.anything(),
+        context: expect.anything(),
+        info: expect.anything(),
+      })
+    })
   })
 
   describe("#distanceToOpen", () => {
@@ -515,6 +538,37 @@ describe("gravity/stitching", () => {
 
       expect(info.mergeInfo.delegateToSchema).toHaveBeenCalledWith({
         args: { artistID: "fakeid", first: 5 },
+        operation: "query",
+        fieldName: "artistSeriesConnection",
+        schema: expect.anything(),
+        context: expect.anything(),
+        info: expect.anything(),
+      })
+    })
+  })
+
+  describe("#artwork", () => {
+    it("extends the Artwork type with an artistSeriesConnection field", async () => {
+      const mergedSchema = await getGravityMergedSchema()
+      const artwork = await getFieldsForTypeFromSchema("Artwork", mergedSchema)
+
+      expect(artwork).toContain("artistSeriesConnection")
+    })
+
+    it("resolves the artistSeriesConnection field on Artwork", async () => {
+      const { resolvers } = await getGravityStitchedSchema()
+      const { artistSeriesConnection } = resolvers.Artwork
+      const info = { mergeInfo: { delegateToSchema: jest.fn() } }
+
+      artistSeriesConnection.resolve(
+        { internalID: "fakeid" },
+        { first: 5 },
+        {},
+        info
+      )
+
+      expect(info.mergeInfo.delegateToSchema).toHaveBeenCalledWith({
+        args: { artworkID: "fakeid", first: 5 },
         operation: "query",
         fieldName: "artistSeriesConnection",
         schema: expect.anything(),
