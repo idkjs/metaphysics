@@ -638,6 +638,7 @@ type Artist implements Node & Searchable {
   artistSeriesConnection(
     after: String
     before: String
+    excludeIDs: [ID]
     first: Int
     last: Int
   ): ArtistSeriesConnection
@@ -1363,6 +1364,7 @@ type Artwork implements Node & Searchable & Sellable {
   artistSeriesConnection(
     after: String
     before: String
+    excludeIDs: [ID]
     first: Int
     last: Int
   ): ArtistSeriesConnection
@@ -11462,6 +11464,9 @@ type Query {
 
     # Returns the elements in the list that come before the specified cursor.
     before: String
+
+    # Get submissions filtered by category
+    filterByCategory: ConsignmentSubmissionCategoryAggregation
 
     # Returns the first _n_ elements from the list.
     first: Int

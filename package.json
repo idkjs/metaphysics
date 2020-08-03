@@ -35,7 +35,7 @@
   "author": "Art.sy Inc",
   "license": "MIT",
   "dependencies": {
-    "@artsy/xapp": "1.0.5",
+    "@artsy/xapp": "1.0.6",
     "@babel/cli": "7.4.4",
     "@babel/core": "7.4.5",
     "@babel/node": "7.4.5",
@@ -143,7 +143,7 @@
     "sinon": "1.17.7",
     "superagent": "3.8.3",
     "supertest": "3.1.0",
-    "typescript": "3.8.3"
+    "typescript": "3.9.7"
   },
   "jest": {
     "setupFilesAfterEnv": [
