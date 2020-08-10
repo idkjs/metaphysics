@@ -470,6 +470,12 @@ type AnalyticsShow {
   entityId: String!
 }
 
+# Statistics for users
+type AnalyticsUserStats {
+  totalPurchaseCount: Int!
+  userId: String!
+}
+
 type AnalyticsVisitorsByCountry {
   metric: String!
   name: String!
@@ -1275,6 +1281,7 @@ type ArtistSeries {
   artworkIDs: [ID!]!
   artworksConnection(after: String, first: Int): ArtworkConnection
   description: String
+  descriptionFormatted(format: Format): String
   featured: Boolean!
   forSaleArtworksCount: Int!
   image: Image
@@ -10817,6 +10824,9 @@ type Query {
 
   # Find PartnerStats
   analyticsPartnerStats(partnerId: String!): AnalyticsPartnerStats
+
+  # Query UserStats
+  analyticsUserStats(userId: String!): AnalyticsUserStats
 
   # An Article
   article(
