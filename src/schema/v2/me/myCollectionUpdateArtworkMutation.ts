@@ -1,7 +1,8 @@
 import { GraphQLString, GraphQLList, GraphQLNonNull } from "graphql"
 import { mutationWithClientMutationId } from "graphql-relay"
-import { ArtworkType } from "schema/v2/artwork/index"
 import { ResolverContext } from "types/graphql"
+import { MyCollectionArtworkMutationType } from "./myCollection"
+import { formatGravityError } from "lib/gravityErrorHandler"
 
 export const myCollectionUpdateArtworkMutation = mutationWithClientMutationId<
   any,
@@ -31,16 +32,12 @@ export const myCollectionUpdateArtworkMutation = mutationWithClientMutationId<
     },
   },
   outputFields: {
-    artwork: {
-      type: ArtworkType,
-      resolve: ({ artworkId }, _, { myCollectionArtworkLoader }) => {
-        if (myCollectionArtworkLoader) {
-          return myCollectionArtworkLoader(artworkId)
-        }
-      },
+    artworkOrError: {
+      type: MyCollectionArtworkMutationType,
+      resolve: (result) => result,
     },
   },
-  mutateAndGetPayload: (
+  mutateAndGetPayload: async (
     { artworkId, artistIds, dimensions, medium, title, year },
     { myCollectionUpdateArtworkLoader }
   ) => {
@@ -48,16 +45,26 @@ export const myCollectionUpdateArtworkMutation = mutationWithClientMutationId<
       return new Error("You need to be signed in to perform this action")
     }
 
-    return myCollectionUpdateArtworkLoader(artworkId, {
-      artist_ids: artistIds,
-      dimensions,
-      medium,
-      title,
-      year,
-    }).then(() => {
+    try {
+      const response = await myCollectionUpdateArtworkLoader(artworkId, {
+        artist_ids: artistIds,
+        dimensions,
+        medium,
+        title,
+        year,
+      })
+
       return {
-        artworkId,
+        ...response,
+        id: artworkId,
       }
-    })
+    } catch (error) {
+      const formattedErr = formatGravityError(error)
+      if (formattedErr) {
+        return { ...formattedErr, _type: "GravityMutationError" }
+      } else {
+        throw new Error(error)
+      }
+    }
   },
 })

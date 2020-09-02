@@ -2,25 +2,62 @@ import { runAuthenticatedQuery } from "schema/v2/test/utils"
 import gql from "lib/gql"
 
 describe("myCollectionUpdateArtworkMutation", () => {
-  it("updates an artwork", async () => {
-    const mutation = gql`
-      mutation {
-        myCollectionUpdateArtwork(
-          input: {
-            artworkId: "foo"
-            artistIds: ["4d8b92b34eb68a1b2c0003f4"]
-            medium: "Painting"
-            dimensions: "20x20"
-            title: "hey now"
-            year: "1990"
+  const mutation = gql`
+    mutation {
+      myCollectionUpdateArtwork(
+        input: {
+          artworkId: "foo"
+          artistIds: ["4d8b92b34eb68a1b2c0003f4"]
+          medium: "Painting"
+          dimensions: "20x20"
+          title: "hey now"
+          year: "1990"
+        }
+      ) {
+        artworkOrError {
+          ... on MyCollectionArtworkMutationSuccess {
+            artwork {
+              medium
+            }
+            artworkEdge {
+              node {
+                medium
+              }
+            }
           }
-        ) {
-          artwork {
-            medium
+          ... on MyCollectionArtworkMutationFailure {
+            mutationError {
+              message
+            }
           }
         }
       }
-    `
+    }
+  `
+
+  it("returns an error", async () => {
+    const context = {
+      myCollectionUpdateArtworkLoader: () =>
+        Promise.reject(
+          new Error(
+            `https://stagingapi.artsy.net/api/v1/my_collection/artworks/foo - {"error":"Error updating artwork"}`
+          )
+        ),
+    }
+
+    const data = await runAuthenticatedQuery(mutation, context)
+    expect(data).toEqual({
+      myCollectionUpdateArtwork: {
+        artworkOrError: {
+          mutationError: {
+            message: "Error updating artwork",
+          },
+        },
+      },
+    })
+  })
+
+  it("updates an artwork", async () => {
     const context = {
       myCollectionUpdateArtworkLoader: () => Promise.resolve({ id: "foo" }),
       myCollectionArtworkLoader: () =>
@@ -32,8 +69,15 @@ describe("myCollectionUpdateArtworkMutation", () => {
     const data = await runAuthenticatedQuery(mutation, context)
     expect(data).toEqual({
       myCollectionUpdateArtwork: {
-        artwork: {
-          medium: "Updated",
+        artworkOrError: {
+          artwork: {
+            medium: "Updated",
+          },
+          artworkEdge: {
+            node: {
+              medium: "Updated",
+            },
+          },
         },
       },
     })
